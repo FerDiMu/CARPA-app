@@ -110,7 +110,7 @@ interface CheckboxProps extends ComponentProps<'input'> {
 export const Checkbox: React.FC<CheckboxProps> = ({ name, ...props }) => {
   return (
     <div className="flex items-center">
-      <Label name={name} />
+      <Label name={name} style={{ padding: '1px' }} />
       <div className="checkbox bg-default relative ml-auto rounded-sm">
         <input
           type="checkbox"

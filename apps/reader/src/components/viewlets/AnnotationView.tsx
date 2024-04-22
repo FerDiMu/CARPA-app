@@ -85,6 +85,7 @@ const AnnotationBlock: React.FC<AnnotationBlockProps> = ({ annotations }) => {
               <Row
                 depth={2}
                 onClick={() => {
+                  console.log('Weblogger: Annotation CFI ' + a.cfi)
                   reader.focusedBookTab?.display(a.cfi)
                 }}
                 onDelete={() => {
@@ -97,6 +98,7 @@ const AnnotationBlock: React.FC<AnnotationBlockProps> = ({ annotations }) => {
                 <Row
                   depth={3}
                   onClick={() => {
+                    console.log('Weblogger: Annotation CFI ' + a.cfi)
                     reader.focusedBookTab?.display(a.cfi)
                   }}
                 >

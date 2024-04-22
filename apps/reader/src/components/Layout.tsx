@@ -10,8 +10,15 @@ import {
   MdToc,
   MdTimeline,
   MdOutlineLightMode,
+  MdRemoveRedEye,
 } from 'react-icons/md'
-import { RiFontSize, RiHome6Line, RiSettings5Line } from 'react-icons/ri'
+import { FaRegEye } from 'react-icons/fa'
+import {
+  RiFontSize,
+  RiHome6Line,
+  RiQuestionnaireLine,
+  RiSettings5Line,
+} from 'react-icons/ri'
 import { useRecoilState } from 'recoil'
 
 import {
@@ -37,26 +44,30 @@ import { ThemeView } from './viewlets/ThemeView'
 import { TimelineView } from './viewlets/TimelineView'
 import { TocView } from './viewlets/TocView'
 import { TypographyView } from './viewlets/TypographyView'
+import { EyeTrackerView } from './viewlets/EyeTrackerView'
+import { SelfReportView } from './viewlets/SelfReportView'
+import { useSessionID } from '../hooks/useSessionId'
 
 export const Layout: React.FC = ({ children }) => {
   useColorScheme()
 
   const [ready, setReady] = useState(false)
+  const [sessionID] = useSessionID()
   const setAction = useSetAction()
   const mobile = useMobile()
 
   useEffect(() => {
     if (mobile === undefined) return
-    setAction(mobile ? undefined : 'toc')
+    setAction(mobile ? undefined : undefined)
     setReady(true)
   }, [mobile, setAction])
 
   return (
     <div id="layout" className="select-none">
       <SplitView>
-        {mobile === false && <ActivityBar />}
-        {mobile === true && <NavigationBar />}
-        {ready && <SideBar />}
+        {mobile === false && !sessionID && <ActivityBar />}
+        {mobile === true && !sessionID && <NavigationBar />}
+        {ready && !sessionID && <SideBar />}
         {ready && <Reader>{children}</Reader>}
       </SplitView>
     </div>
@@ -122,6 +133,20 @@ const viewActions: IViewAction[] = [
     title: 'theme',
     Icon: MdOutlineLightMode,
     View: ThemeView,
+    env: Env.Desktop | Env.Mobile,
+  },
+  {
+    name: 'eyetracker',
+    title: 'eyetracker',
+    Icon: FaRegEye,
+    View: EyeTrackerView,
+    env: Env.Desktop | Env.Mobile,
+  },
+  {
+    name: 'self-report',
+    title: 'self-report',
+    Icon: RiQuestionnaireLine,
+    View: SelfReportView,
     env: Env.Desktop | Env.Mobile,
   },
 ]

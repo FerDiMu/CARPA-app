@@ -32,6 +32,7 @@ export const Settings: React.FC = () => {
           >
             <option value="en-US">English</option>
             <option value="zh-CN">简体中文</option>
+            <option value="es-ES">Español</option>
           </Select>
         </Item>
         <Item title={t('color_scheme')}>

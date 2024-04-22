@@ -20,7 +20,15 @@ enum TypographyScope {
   Global,
 }
 
-const typefaces = ['default', 'sans-serif', 'serif']
+const typefaces = [
+  'default',
+  'sans-serif',
+  'serif',
+  'Arial',
+  'Comic Sans',
+  'Comic Sans MS',
+  'cursive',
+]
 
 export const TypographyView: React.FC<PaneViewProps> = (props) => {
   const { focusedBookTab } = useReaderSnapshot()
@@ -28,7 +36,16 @@ export const TypographyView: React.FC<PaneViewProps> = (props) => {
   const [scope, setScope] = useState(TypographyScope.Book)
   const t = useTranslation('typography')
 
-  const { fontFamily, fontSize, fontWeight, lineHeight, zoom, spread } =
+  const {
+    fontFamily,
+    fontSize,
+    fontWeight,
+    wordSpacing,
+    letterSpacing,
+    lineHeight,
+    zoom,
+    spread,
+  } =
     scope === TypographyScope.Book
       ? focusedBookTab?.book.configuration?.typography ?? defaultSettings
       : settings
@@ -126,6 +143,24 @@ export const TypographyView: React.FC<PaneViewProps> = (props) => {
           defaultValue={fontWeight}
           onChange={(v) => {
             setTypography('fontWeight', v || undefined)
+          }}
+        />
+        <NumberField
+          name={t('word_spacing')}
+          min={-5}
+          max={50}
+          defaultValue={wordSpacing}
+          onChange={(v) => {
+            setTypography('wordSpacing', v ? v + 'px' : undefined)
+          }}
+        />
+        <NumberField
+          name={t('letter_spacing')}
+          min={-5}
+          max={50}
+          defaultValue={letterSpacing}
+          onChange={(v) => {
+            setTypography('letterSpacing', v ? v + 'px' : undefined)
           }}
         />
         <NumberField

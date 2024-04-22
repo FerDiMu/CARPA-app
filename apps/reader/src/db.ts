@@ -3,9 +3,45 @@ import Dexie, { Table } from 'dexie'
 
 import { PackagingMetadataObject } from '@flow/epubjs/types/packaging'
 
+import type {Location} from '@flow/epubjs'
+
 import { Annotation } from './annotation'
 import { fileToEpub } from './file'
 import { TypographyConfiguration } from './state'
+
+export interface AccuracyRecord{
+  timestamp: number,
+  accuracy: number,
+  accuracy_predictions: {
+    x: number[],
+    y: number[],
+  },
+  window_dimensions: {
+    width: number,
+    height: number,
+  },
+}
+
+export interface TimelineRecord{
+  location: Location,
+  timestamp: number,
+}
+
+export interface EyeGazeRecord{
+  session_id: string | null
+  timestamp: number
+  timestamp_formatted: string
+  x_screen_prediction: number
+  y_screen_prediction: number
+}
+
+export interface WordRecord{
+  word: string
+  x: number,
+  y: number,
+  width: number,
+  height: number
+}
 
 export interface FileRecord {
   id: string
@@ -37,12 +73,32 @@ export interface BookRecord {
 export class DB extends Dexie {
   // 'books' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
+  timelines!: Table<TimelineRecord>
+  accuracies!: Table<AccuracyRecord>
+  words!: Table<WordRecord>
+  eyegazes!: Table<EyeGazeRecord>
   files!: Table<FileRecord>
   covers!: Table<CoverRecord>
   books!: Table<BookRecord>
 
   constructor(name: string) {
     super(name)
+
+    this.version(9).stores({
+      timelines: 'timestamp, location'
+    })
+
+    this.version(8).stores({
+      accuracies: 'timestamp, accuracy, accuracy_predictions,  window_dimensions'
+    })
+
+    this.version(7).stores({
+      words: '[x+y], word, width, height',
+    })
+
+    this.version(6).stores({
+      eyegazes: 'timestamp, session_id, x_screen_prediction, y_screen_prediction',
+    })
 
     this.version(5).stores({
       books:

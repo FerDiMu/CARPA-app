@@ -52,6 +52,23 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   const range = selection?.getRangeAt(0) ?? annotationRange
   if (!range) return null
 
+  console.log(
+    'Weblogger: SELECTED TEXT: ' +
+      range.toString() +
+      '. Bounding box: ' +
+      JSON.stringify(range.getBoundingClientRect()),
+  )
+
+  console.log(
+    'Weblogger: PARENT CONTAINER Bounding box: ' +
+      JSON.stringify(el.parentElement!.getBoundingClientRect()),
+  )
+
+  console.log(
+    'Weblogger: VIEW ELEMENT Bounding box: ' +
+      JSON.stringify(el!.getBoundingClientRect()),
+  )
+
   // prefer to display above the selection to avoid text selection helpers
   // https://stackoverflow.com/questions/68081757/hide-the-two-text-selection-helpers-in-mobile-browsers
   const forward = isTouchScreen
@@ -63,6 +80,10 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   const rects = [...range.getClientRects()].filter((r) => Math.round(r.width))
   const anchorRect = rects && (forward ? last(rects) : rects[0])
   if (!anchorRect) return null
+
+  console.log(
+    'Weblogger: ANCHOR RECT Bounding box: ' + JSON.stringify(anchorRect),
+  )
 
   const contents = range.cloneContents()
   const text = contents.textContent?.trim()

@@ -8,6 +8,9 @@ export type Action =
   | 'image'
   | 'timeline'
   | 'theme'
+  | 'eyetracker'
+  | 'self-report'
+
 export const actionState = atom<Action | undefined>({
   key: 'action',
   default: undefined,

@@ -10,11 +10,12 @@ import React, {
 import { MdChevronRight, MdWebAsset } from 'react-icons/md'
 import { RiBookLine } from 'react-icons/ri'
 import { PhotoSlider } from 'react-photo-view'
-import { useSetRecoilState } from 'recoil'
+import { SetterOrUpdater, useSetRecoilState } from 'recoil'
 import useTilg from 'tilg'
 import { useSnapshot } from 'valtio'
+import { makeRangeCfi, timeConfiguration } from '../utils'
 
-import { RenditionSpread } from '@flow/epubjs/types/rendition'
+//import { RenditionSpread } from '@flow/epubjs/types/rendition'
 import { navbarState } from '@flow/reader/state'
 
 import { db } from '../db'
@@ -42,8 +43,16 @@ import { Tab } from './Tab'
 import { TextSelectionMenu } from './TextSelectionMenu'
 import { DropZone, SplitView, useDndContext, useSplitViewItem } from './base'
 import * as pages from './pages'
+import { useKeyDown } from '../hooks/useKeyDown'
+import { useBookLocationCallback } from '../hooks/useLocation'
 
-function handleKeyDown(tab?: BookTab) {
+function handleKeyDown(
+  setter: SetterOrUpdater<{
+    key: string | undefined
+    time: number | undefined
+  }>,
+  tab?: BookTab,
+) {
   return (e: KeyboardEvent) => {
     try {
       switch (e.code) {
@@ -58,6 +67,7 @@ function handleKeyDown(tab?: BookTab) {
         case 'Space':
           e.shiftKey ? tab?.prev() : tab?.next()
       }
+      setter({ key: e.code, time: Date.now() })
     } catch (error) {
       // ignore `rendition is undefined` error
     }
@@ -66,8 +76,9 @@ function handleKeyDown(tab?: BookTab) {
 
 export function ReaderGridView() {
   const { groups } = useReaderSnapshot()
+  const [keyDown, setKeyDown] = useKeyDown()
 
-  useEventListener('keydown', handleKeyDown(reader.focusedBookTab))
+  useEventListener('keydown', handleKeyDown(setKeyDown, reader.focusedBookTab))
 
   if (!groups.length) return null
   return (
@@ -105,7 +116,10 @@ function ReaderGroup({ index }: ReaderGroupProps) {
     >
       <Tab.List
         className="hidden sm:flex"
-        onDelete={() => reader.removeGroup(index)}
+        onDelete={() => {
+          console.log('Weblogger: Tab removed')
+          reader.removeGroup(index)
+        }}
       >
         {tabs.map((tab, i) => {
           const selected = i === selectedIndex
@@ -116,7 +130,122 @@ function ReaderGroup({ index }: ReaderGroupProps) {
               selected={selected}
               focused={focused}
               onClick={() => group.selectTab(i)}
-              onDelete={() => reader.removeTab(i, index)}
+              onDelete={async () => {
+                if (tab instanceof BookTab) {
+                  var aux = tab as BookTab
+                  if (
+                    (document.cookie.match(
+                      /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+                    ) || [, null])[1] != null
+                  ) {
+                    const date = Date.now()
+                    console.log('Weblogger: Date ' + (tab as BookTab).location)
+                    console.log('Weblogger: Previous page configuration')
+                    const response = await db?.words.toArray()
+                    const timeline_array = await db?.timelines.toArray()
+                    var prev_page_data: any = {}
+                    if (
+                      response &&
+                      response.length != 0 &&
+                      timeline_array &&
+                      timeline_array.length != 0
+                    ) {
+                      const start_date = timeline_array.reduce(
+                        (prev, current) => {
+                          return prev.timestamp > current.timestamp
+                            ? prev
+                            : current
+                        },
+                      )
+                      prev_page_data = {
+                        book: aux.book.name,
+                        location: aux.timeline[0]?.location!,
+                        start_timestamp_formatted: new Date(
+                          start_date.timestamp,
+                        ).toLocaleString('es-ES', timeConfiguration),
+                        start_timestamp: start_date.timestamp,
+                        end_timestamp_formatted: new Date(date).toLocaleString(
+                          'es-ES',
+                          timeConfiguration,
+                        ),
+                        end_timestamp: date,
+                        page_content: JSON.parse(JSON.stringify(response)),
+                      }
+                      db?.words.clear()
+                      console.log('Weblogger: Promise 1 resolved')
+                      const eyegazes = await db?.eyegazes
+                        .filter((obj) => {
+                          return obj.timestamp <= date
+                        })
+                        .toArray()
+                      if (eyegazes && eyegazes.length != 0) {
+                        console.log('Weblogger: Saving eyegaze data')
+                        prev_page_data = {
+                          ...prev_page_data,
+                          eyegaze: {
+                            eyegaze_start: eyegazes[0]?.timestamp_formatted,
+                            eyegaze_end:
+                              eyegazes[eyegazes.length - 1]
+                                ?.timestamp_formatted,
+                            gazes: eyegazes.map((a) => {
+                              return { ...a }
+                            }),
+                          },
+                        }
+                        db?.eyegazes.clear()
+                        const accuracies = await db?.accuracies
+                          .filter((obj) => {
+                            return obj.timestamp <= start_date.timestamp
+                          })
+                          .toArray()
+                        if (accuracies && accuracies.length != 0) {
+                          console.log(
+                            'Weblogger: Accuracies: ' + accuracies.length,
+                          )
+                          const proximal_accuracy = accuracies.reduce(
+                            (prev, current) => {
+                              return prev.timestamp > current.timestamp
+                                ? prev
+                                : current
+                            },
+                          )
+                          prev_page_data = {
+                            ...prev_page_data,
+                            accuracy_info: {
+                              timestamp_formatted: new Date(
+                                proximal_accuracy.timestamp,
+                              ).toLocaleString('es-ES', timeConfiguration),
+                              ...proximal_accuracy,
+                            },
+                          }
+                        }
+                      }
+                      fetch('/api/data', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          collection: document.cookie.match(
+                            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+                          )![1],
+                          document: 'page_' + start_date.timestamp,
+                          data: prev_page_data,
+                        }),
+                      }).then((res: Response) => {
+                        console.log(
+                          'Weblogger: HTTP Response: Code ' +
+                            res.status +
+                            '. ' +
+                            JSON.stringify(res.json()),
+                        )
+                      })
+                    }
+                  }
+                  console.log('Weblogger: Tab closed')
+                }
+                reader.removeTab(i, index)
+              }}
               Icon={tab instanceof BookTab ? RiBookLine : MdWebAsset}
               draggable
               onDragStart={(e) => {
@@ -210,8 +339,12 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
   const typography = useTypography(tab)
   const { dark } = useColorScheme()
   const [background] = useBackground()
+  const [keyDown, setKeyDown] = useKeyDown()
+  const [bookLocationCallback] = useBookLocationCallback()
 
   const { iframe, rendition, rendered, container } = useSnapshot(tab)
+
+  useEventListener(iframe, 'keydown', handleKeyDown(setKeyDown, tab))
 
   useTilg()
 
@@ -250,6 +383,10 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
   }, [applyCustomStyle, tab])
 
   useEffect(() => {
+    tab.onLocationChanged = bookLocationCallback.callback
+  }, [bookLocationCallback])
+
+  useEffect(() => {
     if (ref.current) tab.render(ref.current)
   }, [tab])
 
@@ -259,7 +396,7 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
      * then call {@link updateCustomStyle} to update custom style
      * according to the latest layout
      */
-    rendition?.spread(typography.spread ?? RenditionSpread.Auto)
+    rendition?.spread(typography.spread ?? 'auto')
   }, [typography.spread, rendition])
 
   useEffect(() => applyCustomStyle(), [applyCustomStyle])
@@ -299,11 +436,7 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
         tab.showPrevLocation()
         return
       }
-      if (
-        mobile === false &&
-        el.tagName === 'IMG' &&
-        el.src.startsWith('blob:')
-      ) {
+      if (mobile === false && el.tagName === 'IMG') {
         setSrc(el.src)
         return
       }
@@ -337,8 +470,6 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
       tab.next()
     }
   })
-
-  useEventListener(iframe, 'keydown', handleKeyDown(tab))
 
   useEventListener(iframe, 'touchstart', (e) => {
     const x0 = e.targetTouches[0]?.clientX ?? 0

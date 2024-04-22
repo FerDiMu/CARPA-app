@@ -7,6 +7,7 @@ RUN apk update
 # Set working directory
 WORKDIR /app
 RUN yarn global add turbo
+# Copy all other project files to working directory
 COPY . .
 # Only Take packages that are needed to compile this app
 RUN turbo prune --scope=@flow/reader --docker
@@ -19,6 +20,7 @@ WORKDIR /app
 
 # First install the dependencies (as they change less often)
 COPY .gitignore .gitignore
+#Copy reader public's folder and place it in the root of the project
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-*.yaml .
 RUN corepack enable
@@ -44,6 +46,7 @@ COPY --from=installer /app/apps/reader/package.json .
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=installer --chown=nextjs:nodejs /app/apps/reader/public ./apps/reader/public
 COPY --from=installer --chown=nextjs:nodejs /app/apps/reader/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/reader/.next/static ./apps/reader/.next/static
 

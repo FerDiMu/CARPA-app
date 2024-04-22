@@ -1,8 +1,9 @@
 {
   "extends": "../../tsconfig.next.json",
   "compilerOptions": {
+    "allowJs": true,
     "experimentalDecorators": true
   },
-  "include": ["next-env.d.ts", "web.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "web.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.map"],
   "exclude": ["node_modules"]
 }

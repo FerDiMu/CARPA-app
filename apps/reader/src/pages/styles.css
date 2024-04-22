@@ -73,6 +73,157 @@ p {
   @apply py-2;
 }
 
+button {
+  border-radius: 4px;
+}
+/* Video Feed Styling */
+#overlay {
+/* Video Feed Styling:
+* Include the !important keyword to override default styles applied by JS.
+* webgazer.js sets defaults for: display, position, top, left, width, height
+*/
+}
+#webgazerVideoContainer {
+  display: block !important; 
+  position: fixed !important;
+  top: 0px !important;
+  right: 0px !important;
+  width: 320px;
+  height: 240px;
+  z-index: 1;
+}
+
+/* Navbar styling */
+#webgazerNavbar {
+  left: 320px;
+  width: calc(100% - 320px);
+  z-index: 0;
+  box-shadow: 0px 3px 5px #ddd;
+  border:0px;
+  background-color: #fff;
+}
+
+#Accuracy a{
+  left: -15px;
+  padding-left: 80px;
+  padding-right: 40px;
+}
+#Accuracy {
+  padding-left: inherit;
+}
+
+li {
+  padding-left: 50px;
+}
+.navbar-right li {
+  padding-right: 20px;
+}
+
+.helpBtn {
+  display: inline-block;
+  padding: 15px;
+  border: none;
+  background: none;
+  color: #777;
+}
+.helpBtn:hover {
+  color: black!important;
+  text-decoration: none;
+}
+.modal-header {
+  border-bottom: none!important;
+}
+
+/* Calibration button styling */
+.Calibration{
+  /* width: 20px;
+  height: 20px;
+  -webkit-border-radius: 25px;  
+  -moz-border-radius: 25px;
+  border-radius: 25px;
+  background-color: red;
+  border-color: black;
+  border-style: solid; 
+  opacity: 0.333;*/
+  opacity: 1;
+  width: 70px;
+  height: 70px;
+  position:fixed;
+}
+
+#PtPrecision{
+  top: 50vh;
+  left: 50vw;
+  width: 20px;
+  height: 20px;
+  -webkit-border-radius: 30px;  
+  -moz-border-radius: 30px;
+  border-radius: 30px;
+  background-color: red;
+  border-color: black;
+  border-style: solid;
+}
+
+/* Calibration point position */
+/* #Pt1{
+  top: 70px;
+  left:340px;
+}
+#Pt2{
+  top: 70px;
+  left:50vw;
+  margin-left: 340;
+}
+#Pt3{
+  top: 70px;
+  right:2vw;
+}
+#Pt4{
+  top:50vh;
+  left:2vw;
+}
+#Pt5{
+  top:50vh;
+  left:25vw;
+}
+#Pt6{
+  top: 50vh;
+  left: 50vw;
+}
+#Pt7{
+  top: 50vh;
+  right: 25vw;
+}
+#Pt8{
+  top: 50vh;
+  right:2vw;
+}
+#Pt9{
+  bottom:2vw;
+  left: 2vw;
+}
+#Pt10{
+  bottom:2vw;
+  left: 25vw;
+}
+#Pt11{
+  bottom:2vw;
+  left:50vw;
+}
+#Pt12{
+  bottom:2vw;
+  right:25vw;
+}
+#Pt13{
+  bottom:2vw;
+  right:2vw;
+}  */
+
+#authenticationDiv{
+  padding-bottom: 0px !important;
+  justify-content: center !important;
+}
+
 /* https://daisyui.com/components/divider */
 .divider {
   display: flex;
@@ -113,4 +264,291 @@ p {
 
 .list-row:hover .action {
   display: block;
+}
+
+.ActionBar{
+  padding-left: 0;
+}
+
+#calibrationMenuToggler{
+  display: inline;
+}
+
+@keyframes scaling {
+  0%   {transform: scale(0.3);}
+  25%  {transform: scale(1.0);}
+  50%  {transform: scale(0.3);}
+  100% {transform: scale(1.0);}
+}
+
+.animation{
+  animation: scaling 3s;
+}
+
+input[type=checkbox]:checked {
+  background-color: #000;
+}
+
+/* Affective slider **/
+
+.AffectiveSlider {
+	width: 100%;
+	text-align: center;
+}
+
+.arousal_svg {
+	width: 7%;
+	margin: 0px;
+	margin-bottom: -30px;
+}
+
+.AffectiveSlider {
+	margin-top: 2em;
+}
+
+.AffectiveSlider .intensity_cue_svg {
+	width: 78%;
+	position: relative;
+	top: -25px;
+}
+
+@media (max-width: 1100px) {
+	.AffectiveSlider .intensity_cue_svg {
+		width: 76%;
+		position: relative;
+		top: 5px;
+	}
+}
+
+input[type=range]:focus {
+	outline: none;
+}
+
+.AffectiveSlider input[type=range]{
+	/* fix for FF unable to apply focus style bug  */
+	border: 10px solid white;
+
+	/*required for proper track sizing in FF*/
+	width: 80%;
+	margin: 0px;
+	padding: 0px;
+	vertical-align: top;
+	margin-top: 6px;
+}
+
+
+.AffectiveSlider input[type=range]::-moz-range-track {
+	width: 100%;
+	height: 20px;
+	background: #ddd;
+	border-radius: 10px;
+	border: none;
+}
+input[type=range]:focus::-moz-range-track {
+	background: #ccc;
+}
+
+.AffectiveSlider input[type=range]::-moz-range-thumb {
+	height: 35px;
+	width: 35px;
+	border-radius: 60%;
+	background: white;
+	border: 2px solid #505050;
+}
+
+.AffectiveSlider input[type=range]::-moz-range-thumb:hover {
+	background: #505050;
+	border: 2px solid white;
+	cursor: pointer;
+	box-shadow: 0px 0px 12px #212121;
+}
+
+
+.AffectiveSlider input[type=range]{
+	-webkit-appearance: none;
+}
+
+
+input[type=range]::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 20px;
+	border: none;
+	background: #ddd;
+	border-radius: 10px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	height: 35px;
+	width: 35px;
+	border-radius: 60%;
+	background: white;
+	border: 2px solid #505050;
+	margin-top: -8px;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+	background: #505050;
+	border: 2px solid white;
+	cursor: pointer;
+	box-shadow: 0px 0px 12px #212121;
+}
+
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+	background: #ccc;
+}
+
+input[type=range]::-ms-track {
+	width: 100%;
+	height: 20px;
+	/*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+	background: transparent;
+	/*leave room for the larger thumb to overflow with a transparent border */
+	border-color: transparent;
+	border-width: 16px 0;
+	/*remove default tick marks*/
+	color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+	background: #ddd;
+	border-radius: 10px;
+}
+input[type=range]::-ms-fill-upper {
+	background: #ddd;
+	border-radius: 10px;
+}
+input[type=range]::-ms-thumb {
+	height: 35px;
+	width: 35px;
+	border-radius: 60%;
+	background: white;
+	border: 2px solid #505050;
+}
+.AffectiveSlider input[type=range]::-ms-thumb:hover {
+	background: #505050;
+	border: 2px solid white;
+	cursor: pointer;
+	box-shadow: 0px 0px 12px #212121;
+}
+input[type=range]:focus::-ms-fill-lower {
+	background: #ccc;
+}
+input[type=range]:focus::-ms-fill-upper {
+	background: #ccc;
+}
+
+main {
+  background: #FFF;
+  border: 1px solid #333;
+  border-style: none solid;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1em 2em;
+  width: 70%;
+}
+
+p {
+  margin: 1em 0;
+}
+
+/* videos */
+.video-container {
+  display: block;
+  margin: 1em auto 2em;
+  width: 70%;
+  }
+  .aspect-ratio {
+  position: relative;
+  height: 0;
+  }
+  
+  video {
+  aspect-ratio:  16/10;
+  width: 100%;
+  }
+  
+  .aspect-ratio > iframe {
+  background-color: #121212;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 0 .5em #0006;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  }
+  
+  /* default values */
+  .lv-player {
+    --lv-controls-height: 44px;
+    --lv-elapsed-color: #AF1866;
+    --lv-scrubber-color: #AF1866;
+    --lv-scrub-height: 6px;
+    --lv-buttons-height: calc(var(--lv-controls-height) - var(--lv-scrub-height));
+    --lv-canvas-height: calc(var(--lv-height) - var(--lv-controls-height));
+  }
+  
+  /* these ones control the aspect ratio --- default is 8/5 */
+  @media (min-aspect-ratio: 8/5) {
+    :root {
+      font-size: 2vh;
+    }
+  
+    .lv-player {
+      --lv-height: 100vh;
+      --lv-width: 160vh;
+    }
+  
+    .lv-canvas {
+      margin: 0 auto;
+    }
+  }
+  
+  @media (max-aspect-ratio: 8/5) {
+    :root {
+      font-size: 1.25vw;
+    }
+  
+    .lv-player {
+      --lv-height: 62.5vw;
+      --lv-width: 100vw;
+    }
+    .lv-canvas {
+      top: calc((100% - 62.5vw) / 2);
+    }
+  }
+
+  #emojis-div {   
+    width: inherit;
+    margin-top:90px;
+    margin-left: auto; 
+    margin-right: auto;
+
+     text-align: justify;
+    -ms-text-justify: distribute-all-lines;
+    text-justify: distribute-all-lines;
+}
+#emojis-div input {
+    vertical-align: top;
+    display: inline-block;
+    zoom: 1;
+}
+.stretch {
+    width: 100%;
+    display: inline-block;
+    font-size: 0;
+    line-height: 0
+}
+
+.popup {
+  background: #F00;
+  border: 1px solid #000;
+  border-radius: .2em;
+  color: #FFF;
+  font-size: 2em;
+  max-width: 20%;
+  padding: .2em;
+  position: absolute;
 }

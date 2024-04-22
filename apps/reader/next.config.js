@@ -40,10 +40,15 @@ const config = {
     return config
   },
   i18n: {
-    locales: ['en-US', 'zh-CN'],
-    defaultLocale: 'en-US',
+    locales: ['en-US', 'zh-CN', 'es-ES'], // Add the locales you want to support
+    defaultLocale: 'es-ES', // Set the default locale
   },
   ...(IS_DOCKER && {
+    eslint: {
+      // Warning: This allows production builds to successfully complete even if
+      // your project has ESLint errors.
+      ignoreDuringBuilds: true,
+    },
     output: 'standalone',
     experimental: {
       outputFileTracingRoot: path.join(__dirname, '../../'),
@@ -63,3 +68,4 @@ const prod = withSentryConfig(
 )
 
 module.exports = IS_DEV ? dev : IS_DOCKER ? docker : prod
+

@@ -20,6 +20,7 @@ export const defaultStyle = {
   '::selection': {
     'background-color': 'rgba(3, 102, 214, 0.2)',
   },
+  
 }
 
 const camelToSnake = (str: string) =>
