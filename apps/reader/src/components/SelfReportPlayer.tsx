@@ -22,6 +22,12 @@ export const SelfReportPlayer = ({
   const onclick = (val: string) => {
     //vidRef.current!.playback.seek(0)
     //vidRef.current!.playback.pause()
+    console.log(
+      'Webloggger: Selfreport: Onclick callback called! Question: ' +
+        question +
+        '. Val:' +
+        val,
+    )
     on_exit_callback(val, question)
   }
   useEffect(() => {

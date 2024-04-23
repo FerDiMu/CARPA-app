@@ -18,8 +18,12 @@ import { useRouteBack } from '../hooks/useRouteBack'
 import React from 'react'
 import dynamic from 'next/dynamic'
 
-function onResponseCallback(response: string, question: string) {
-  console.log('Weblogger: Called Response Callback')
+function onResponseCallback(
+  response: string,
+  question: string,
+  when: string | string[] | undefined,
+) {
+  console.log('Weblogger: Called Response Callback: When ' + when)
   if (
     (document.cookie.match(/^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/) || [
       ,
@@ -30,6 +34,7 @@ function onResponseCallback(response: string, question: string) {
       section: question,
       response: response,
       timestamp: Date.now(),
+      when: when,
     }
     console.log('Weblogger: Sending fetch request to server...')
     fetch('/api/data', {
@@ -78,14 +83,20 @@ const SelfReport: NextPageWithLayout = () => {
   const [finishedSection, setFinishedSection] = useState(false)
   const [index, setIndex] = useState(0)
   const vidRef = useRef<any>(null)
-  const onexit = (val: string, question: string) => {
+  const onexit = (val: string) => {
     vidRef.current!.playback.seek(0)
     vidRef.current!.playback.pause()
     console.log(
       'Weblogger: Selfreport sections: ' + JSON.stringify(sections_array),
       +'. Current section: ' + sections_array[index]!,
     )
-    onResponseCallback(val, question)
+    console.log(
+      'Weblogger: Selfreport section: ' +
+        val.split(' ')[0]! +
+        '. Value: ' +
+        val.split(' ')[1]!,
+    )
+    onResponseCallback(val.split(' ')[1]!, val.split(' ')[0]!, when)
     setFinishedSection(true)
   }
   var section: string | undefined = undefined
@@ -164,8 +175,11 @@ const SelfReport: NextPageWithLayout = () => {
     }
   }
 
+  console.log('Weblogger: Rerendered Index: ' + index)
+
   useEffect(() => {
     if (root) {
+      console.log('Weblogger: Root the section index is ' + index)
       var iframe = document.getElementById(
         'section-iframe',
       )! as HTMLIFrameElement
@@ -175,20 +189,14 @@ const SelfReport: NextPageWithLayout = () => {
       Array.from(innerDoc.getElementsByTagName('input')).forEach((element) => {
         console.log('Weblogger: Adding listeners')
         element.addEventListener('click', () => {
-          onexit(
-            element.value,
-            sections_props[sections_array[index]!]!.question,
-          )
+          onexit(element.value)
         })
       })
       return () => {
         Array.from(innerDoc.getElementsByTagName('input')).forEach(
           (element) => {
             element.removeEventListener('click', () => {
-              onexit(
-                element.value,
-                sections_props[sections_array[index]!]!.question,
-              )
+              onexit(element.value)
             })
           },
         )

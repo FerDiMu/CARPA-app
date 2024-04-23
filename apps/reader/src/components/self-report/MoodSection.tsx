@@ -32,7 +32,7 @@ export function Popup_Mood() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="very-tired"
+        value="mood very-tired"
       />
       <input
         data-from-first="emojis/tired"
@@ -43,7 +43,7 @@ export function Popup_Mood() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="tired"
+        value="mood tired"
       />
       <input
         data-from-first="emojis/normal"
@@ -54,7 +54,7 @@ export function Popup_Mood() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="normal"
+        value="mood normal"
       />
       <input
         data-from-first="emojis/excited"
@@ -65,7 +65,7 @@ export function Popup_Mood() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="excited"
+        value="mood excited"
       />
       <input
         data-from-first="emojis/very-excited"
@@ -76,7 +76,7 @@ export function Popup_Mood() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="overly-excited"
+        value="mood overly-excited"
       />
     </div>
   )

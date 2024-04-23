@@ -32,7 +32,7 @@ export function Popup_Satisfaction() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="very-little-satisfied"
+        value="satisfaction very-little-satisfied"
       />
       <input
         data-from-first="satisfaction/little-satisfied"
@@ -43,7 +43,7 @@ export function Popup_Satisfaction() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="little-satisfied"
+        value="satisfaction little-satisfied"
       />
       <input
         data-from-first="satisfaction/neither-satisfied-nor-disatisfied"
@@ -54,7 +54,7 @@ export function Popup_Satisfaction() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="neither-satisfied-nor-disatisfied"
+        value="satisfaction neither-satisfied-nor-disatisfied"
       />
       <input
         data-from-first="satisfaction/quite-satisfied"
@@ -65,7 +65,7 @@ export function Popup_Satisfaction() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="quite-satisfied"
+        value="satisfaction quite-satisfied"
       />
       <input
         data-from-first="satisfaction/very-satisfied"
@@ -76,7 +76,7 @@ export function Popup_Satisfaction() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="very-satisfied"
+        value="satisfaction very-satisfied"
       />
     </div>
   )

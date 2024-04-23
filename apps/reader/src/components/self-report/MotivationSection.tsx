@@ -32,7 +32,7 @@ export function Popup_Motivation() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="very-little-motivated"
+        value="motivation very-little-motivated"
       />
       <input
         data-from-first="motivation/little-motivated"
@@ -43,7 +43,7 @@ export function Popup_Motivation() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="little-motivated"
+        value="motivation little-motivated"
       />
       <input
         data-from-first="motivation/neither-motivated-nor-desmotivated"
@@ -54,7 +54,7 @@ export function Popup_Motivation() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="neither-motivated-nor-desmotivated"
+        value="motivation neither-motivated-nor-desmotivated"
       />
       <input
         data-from-first="motivation/quite-motivated"
@@ -65,7 +65,7 @@ export function Popup_Motivation() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="quite-motivated"
+        value="motivation quite-motivated"
       />
       <input
         data-from-first="motivation/very-motivated"
@@ -76,7 +76,7 @@ export function Popup_Motivation() {
           height: '10%',
           cursor: 'pointer',
         }}
-        value="very-motivated"
+        value="motivation very-motivated"
       />
     </div>
   )
