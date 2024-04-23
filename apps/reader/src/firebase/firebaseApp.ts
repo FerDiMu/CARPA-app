@@ -6,12 +6,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
-  apiKey: "AIzaSyACZwqzbnrEQx0mN_HR_4sZw7UbwP_fy_k",
-  authDomain: "eye-tracking-experiment.firebaseapp.com",
-  projectId: "eye-tracking-experiment",
-  storageBucket: "eye-tracking-experiment.appspot.com",
-  messagingSenderId: "242232015080",
-  appId: "1:242232015080:web:c07236634d32612245b15d"
+  apiKey: ,
+  authDomain: ,
+  projectId: ,
+  storageBucket: ,
+  messagingSenderId: ,
+  appId: 
 };
 
 // Initialize Firebase
