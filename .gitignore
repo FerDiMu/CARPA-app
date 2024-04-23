@@ -41,3 +41,4 @@ yarn-error.log*
 
 #Secret
 apps/reader/src/firebase/*
+apps/reader/public/videos/*
