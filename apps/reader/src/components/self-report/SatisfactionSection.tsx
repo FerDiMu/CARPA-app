@@ -1,9 +1,9 @@
 export const script_satisfaction: [string, string][] = [
-  ['self-report/', '0:5'],
-  ['satisfaction/very-little-satisfied', '0:2.5'],
-  ['satisfaction/little-satisfied', '0:2.5'],
-  ['satisfaction/neither-satisfied-nor-disatisfied', '0:4.5'],
-  ['satisfaction/quite-satisfied', '0:3'],
+  ['self-report/', '0:3.5'],
+  ['satisfaction/very-little-satisfied', '0:2'],
+  ['satisfaction/little-satisfied', '0:3'],
+  ['satisfaction/neither-satisfied-nor-disatisfied', '0:2'],
+  ['satisfaction/quite-satisfied', '0:2'],
   ['satisfaction/very-satisfied', '0:2'],
 ]
 

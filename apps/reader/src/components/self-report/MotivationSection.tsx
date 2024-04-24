@@ -1,10 +1,10 @@
 export const script_motivation: [string, string][] = [
-  ['self-report/', '0:5'],
-  ['motivation/very-little-motivated', '0:3'],
-  ['motivation/little-motivated', '0:2.5'],
-  ['motivation/neither-motivated-nor-desmotivated', '0:4'],
-  ['motivation/quite-motivated', '0:2.5'],
-  ['motivation/very-motivated', '0:2.5'],
+  ['self-report/', '0:4'],
+  ['motivation/very-little-motivated', '0:1.5'],
+  ['motivation/little-motivated', '0:3'],
+  ['motivation/neither-motivated-nor-desmotivated', '0:2'],
+  ['motivation/quite-motivated', '0:1.5'],
+  ['motivation/very-motivated', '0:1'],
 ]
 
 export function Popup_Motivation() {

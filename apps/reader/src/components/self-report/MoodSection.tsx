@@ -1,6 +1,6 @@
 export const script_mood: [string, string][] = [
-  ['self-report/', '0:3'],
-  ['emojis/very-tired', '0:1.5'],
+  ['self-report/', '0:4'],
+  ['emojis/very-tired', '0:2'],
   ['emojis/tired', '0:2'],
   ['emojis/normal', '0:1.5'],
   ['emojis/excited', '0:1.5'],
