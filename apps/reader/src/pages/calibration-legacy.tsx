@@ -355,13 +355,13 @@ const CalibrationLegacy: NextPageWithLayout = () => {
       {showHelpModal && (
         <VideoModal
           modalId="helpModal"
-          mediaURL="../videos/video-intro-calibracion-final.mp4"
+          mediaURL="../videos/Intro-calibracion.mp4"
           onclick={() => {
             setShowHelpModal(false)
             ShowCalibrationPoint()
             console.log('Weblogger: Clicked to close modal')
           }}
-          script={[['play/', '0:35']]}
+          script={[['play/', '0:32']]}
           button_name="OK"
         ></VideoModal>
       )}
@@ -369,12 +369,12 @@ const CalibrationLegacy: NextPageWithLayout = () => {
       {showPrecisionModal && (
         <VideoModal
           modalId="precisionModal"
-          mediaURL="../videos/video-precision-final.mp4"
+          mediaURL="../videos/Precision.mp4"
           onclick={() => {
             setShowPrecisionModal(false)
             calcAccuracy(accuracy_callback)
           }}
-          script={[['play/', '0:11']]}
+          script={[['play/', '0:12']]}
           button_name="OK"
         ></VideoModal>
       )}
