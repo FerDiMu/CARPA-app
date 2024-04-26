@@ -326,7 +326,16 @@ const CalibrationLegacy: NextPageWithLayout = () => {
           ></img>
           <div className="calibrationDiv">
             <input></input>
-            <input type="button" id="PtPrecision" className="Calibration" />
+            <input
+              type="image"
+              src="/icons/digglet-with-hole.png"
+              style={{
+                width: points!['start'].width,
+                height: points!['start'].height,
+              }}
+              id="PtPrecision"
+              className="Calibration"
+            />
             {
               //new Array(13).fill(0).map((item, index) => (
               points!['calibration'].map((item, index) => (

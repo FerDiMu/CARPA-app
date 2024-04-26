@@ -128,7 +128,7 @@ function calPointClick(node, calibration_callback) {
           i.style.setProperty('display', 'none');
         }
         else{
-          i.style.setProperty('background-color', 'red');
+          //i.style.setProperty('background-color', 'red');
           i.style.removeProperty('display');
         }
       });

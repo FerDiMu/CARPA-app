@@ -154,14 +154,19 @@ li {
 #PtPrecision{
   top: 50vh;
   left: 50vw;
-  width: 20px;
-  height: 20px;
-  -webkit-border-radius: 30px;  
+  width: 70px;
+  height: 70px;
+  /* -webkit-border-radius: 30px;  
   -moz-border-radius: 30px;
   border-radius: 30px;
   background-color: red;
   border-color: black;
-  border-style: solid;
+  border-style: solid;  
+  background-image: url(/icons/digglet-with-hole.png); 16px x 16px 
+  background-color: transparent; make the button transparent 
+  background-repeat: no-repeat; make the background image appear only once
+  background-position: 0px 0px;  equivalent to 'top left'
+  */
 }
 
 /* Calibration point position */
