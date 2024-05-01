@@ -10,6 +10,7 @@ export type Action =
   | 'theme'
   | 'eyetracker'
   | 'self-report'
+  | 'reader-info'
 
 export const actionState = atom<Action | undefined>({
   key: 'action',

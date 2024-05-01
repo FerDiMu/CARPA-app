@@ -12,7 +12,7 @@ import {
   MdOutlineLightMode,
   MdRemoveRedEye,
 } from 'react-icons/md'
-import { FaRegEye } from 'react-icons/fa'
+import { FaRegEye, FaUser } from 'react-icons/fa'
 import {
   RiFontSize,
   RiHome6Line,
@@ -47,6 +47,7 @@ import { TypographyView } from './viewlets/TypographyView'
 import { EyeTrackerView } from './viewlets/EyeTrackerView'
 import { SelfReportView } from './viewlets/SelfReportView'
 import { useSessionID } from '../hooks/useSessionId'
+import { ReaderInformationView } from './viewlets/ReaderInformationView'
 
 export const Layout: React.FC = ({ children }) => {
   useColorScheme()
@@ -122,17 +123,17 @@ const viewActions: IViewAction[] = [
     env: Env.Desktop,
   },
   {
-    name: 'typography',
-    title: 'typography',
-    Icon: RiFontSize,
-    View: TypographyView,
-    env: Env.Desktop | Env.Mobile,
-  },
-  {
     name: 'theme',
     title: 'theme',
     Icon: MdOutlineLightMode,
     View: ThemeView,
+    env: Env.Desktop | Env.Mobile,
+  },
+  {
+    name: 'typography',
+    title: 'typography',
+    Icon: RiFontSize,
+    View: TypographyView,
     env: Env.Desktop | Env.Mobile,
   },
   {
@@ -147,6 +148,13 @@ const viewActions: IViewAction[] = [
     title: 'self-report',
     Icon: RiQuestionnaireLine,
     View: SelfReportView,
+    env: Env.Desktop | Env.Mobile,
+  },
+  {
+    name: 'reader-info',
+    title: 'reader-info',
+    Icon: FaUser,
+    View: ReaderInformationView,
     env: Env.Desktop | Env.Mobile,
   },
 ]

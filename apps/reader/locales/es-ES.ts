@@ -73,6 +73,10 @@ export default {
     'self-report.motivation': 'Predisposición hacia la tarea',
     'self-report.taskResponse': 'Satisfacción con la tarea',
 
+    'reader-info.title': 'Datos del lector',
+    'reader-info.trial': 'Prueba',
+    'reader-info.participant-number': 'Nº de participante',
+
     'theme.title': 'Tema',
     'theme.source_color': 'Color Fuente',
     'theme.background_color': 'Color de Fondo',

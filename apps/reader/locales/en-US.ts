@@ -57,6 +57,10 @@ export default {
   'eyetracker.show_predictions': 'Display predictions on screen',
   'eyetracker.save_data': 'Use previous calibration data',
 
+  'reader-info.title': 'Reader data',
+  'reader-info.trial': 'Trial',
+  'reader-info.participant-number': 'Participant number',
+
   'emojis.overly-tired': 'Very tired',
   'emojis.tired': 'Tired',
   'emojis.middle-ground': 'Normal',

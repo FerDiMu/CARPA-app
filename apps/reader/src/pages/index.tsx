@@ -557,41 +557,46 @@ const Library: React.FC = () => {
                   })
                 }
                 console.log('Weblogger: Activity config: Sending data')
-                fetch('/api/data', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    collection: document.cookie.match(
-                      /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-                    )![1],
-                    document: 'activity_information',
-                    data: {
-                      start_timestamp_formatted: new Date(date).toLocaleString(
-                        'es-ES',
-                        timeConfiguration,
-                      ),
-                      start_timestamp: date,
-                      end_timestamp_formatted: new Date(date).toLocaleString(
-                        'es-ES',
-                        timeConfiguration,
-                      ),
-                      end_timestamp: date,
-                      self_report: selfReport,
-                      eyetracking: eyeTracker,
-                      settings: settings,
-                      book_setings: books_info.length == 0 ? [] : books_info,
-                    },
-                  }),
-                }).then((res: Response) => {
-                  console.log(
-                    'Weblogger: HTTP Response: Code ' +
-                      res.status +
-                      '. ' +
-                      JSON.stringify(res.json()),
-                  )
-                })
+                db?.readers
+                  .orderBy('timestamp')
+                  .last()
+                  .then((result) => {
+                    fetch('/api/data', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        collection: document.cookie.match(
+                          /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+                        )![1],
+                        document: 'activity_information',
+                        data: {
+                          start_timestamp_formatted: new Date(
+                            date,
+                          ).toLocaleString('es-ES', timeConfiguration),
+                          start_timestamp: date,
+                          end_timestamp_formatted: new Date(
+                            date,
+                          ).toLocaleString('es-ES', timeConfiguration),
+                          end_timestamp: date,
+                          self_report: selfReport,
+                          eyetracking: eyeTracker,
+                          settings: settings,
+                          book_setings:
+                            books_info.length == 0 ? [] : books_info,
+                          participant_id: result ? result.participant_id : -1,
+                        },
+                      }),
+                    }).then((res: Response) => {
+                      console.log(
+                        'Weblogger: HTTP Response: Code ' +
+                          res.status +
+                          '. ' +
+                          JSON.stringify(res.json()),
+                      )
+                    })
+                  })
               })
             }}
           >

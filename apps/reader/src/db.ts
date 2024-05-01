@@ -9,6 +9,11 @@ import { Annotation } from './annotation'
 import { fileToEpub } from './file'
 import { TypographyConfiguration } from './state'
 
+export interface ReaderInformation{
+  timestamp:number,
+  participant_id: number | undefined,
+}
+
 export interface AccuracyRecord{
   timestamp: number,
   accuracy: number,
@@ -73,6 +78,7 @@ export interface BookRecord {
 export class DB extends Dexie {
   // 'books' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
+  readers!: Table<ReaderInformation>
   timelines!: Table<TimelineRecord>
   accuracies!: Table<AccuracyRecord>
   words!: Table<WordRecord>
@@ -83,6 +89,10 @@ export class DB extends Dexie {
 
   constructor(name: string) {
     super(name)
+
+    this.version(10).stores({
+      readers: 'timestamp, participant_id'
+    })
 
     this.version(9).stores({
       timelines: 'timestamp, location'
