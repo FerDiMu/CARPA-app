@@ -12,7 +12,7 @@ import {
   MdOutlineLightMode,
   MdRemoveRedEye,
 } from 'react-icons/md'
-import { FaRegEye, FaUser } from 'react-icons/fa'
+import { FaRegEye, FaUser, FaMicrophone } from 'react-icons/fa'
 import {
   RiFontSize,
   RiHome6Line,
@@ -48,6 +48,7 @@ import { EyeTrackerView } from './viewlets/EyeTrackerView'
 import { SelfReportView } from './viewlets/SelfReportView'
 import { useSessionID } from '../hooks/useSessionId'
 import { ReaderInformationView } from './viewlets/ReaderInformationView'
+import { MicrophoneView } from './viewlets/MicrophoneView'
 
 export const Layout: React.FC = ({ children }) => {
   useColorScheme()
@@ -155,6 +156,13 @@ const viewActions: IViewAction[] = [
     title: 'reader-info',
     Icon: FaUser,
     View: ReaderInformationView,
+    env: Env.Desktop | Env.Mobile,
+  },
+  {
+    name: 'microphone',
+    title: 'microphone',
+    Icon: FaMicrophone,
+    View: MicrophoneView,
     env: Env.Desktop | Env.Mobile,
   },
 ]

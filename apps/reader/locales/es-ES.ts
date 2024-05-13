@@ -77,6 +77,10 @@ export default {
     'reader-info.trial': 'Prueba',
     'reader-info.participant-number': 'Nº de participante',
 
+    'microphone.title': 'Micrófono',
+    'microphone.general': 'General',
+    'microphone.activate': 'Activar micrófono',
+
     'theme.title': 'Tema',
     'theme.source_color': 'Color Fuente',
     'theme.background_color': 'Color de Fondo',

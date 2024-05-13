@@ -11,6 +11,7 @@ export type Action =
   | 'eyetracker'
   | 'self-report'
   | 'reader-info'
+  | 'microphone'
 
 export const actionState = atom<Action | undefined>({
   key: 'action',

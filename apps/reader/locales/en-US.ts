@@ -61,6 +61,10 @@ export default {
   'reader-info.trial': 'Trial',
   'reader-info.participant-number': 'Participant number',
 
+  'microphone.title': 'Microphone',
+  'microphone.general': 'General',
+  'microphone.activate': 'Activate microphone',
+
   'emojis.overly-tired': 'Very tired',
   'emojis.tired': 'Tired',
   'emojis.middle-ground': 'Normal',

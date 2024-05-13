@@ -59,6 +59,11 @@ import { PageType, routeBackState, useRouteBack } from '../hooks/useRouteBack'
 import { useBookLocationCallback } from '../hooks/useLocation'
 import { useSettings } from '../state'
 import { useSessionID } from '../hooks/useSessionId'
+import {
+  modifyContextState,
+  useMicrophone,
+  volumeCallback,
+} from '../hooks/useMicrophone'
 // import html2canvas from 'html2canvas'
 
 const placeholder = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect fill="gray" fill-opacity="0" width="1" height="1"/></svg>`
@@ -73,6 +78,7 @@ const Index: NextPageWithLayout = () => {
   const [selfReport] = useSelfReport()
   const [routeBack, setRouteBackState] = useRouteBack()
   const [keyDown] = useKeyDown()
+  const [microphone, setMicrophone] = useMicrophone()
   const [routeHistory, setRouteHistory] = useRouteHistory()
   const [bookLocationCallback, setBookLocationCallback] =
     useBookLocationCallback()
@@ -89,6 +95,11 @@ const Index: NextPageWithLayout = () => {
   const router = useRouter()
   const src = new URL(window.location.href).searchParams.get(SOURCE)
   const [loading, setLoading] = useState(!!src)
+  const timerRef = useRef<NodeJS.Timer | null>(null)
+
+  /*  useEffect(() => {
+    db?.delete()
+  }, []) */
 
   useDisablePinchZooming()
 
@@ -137,6 +148,46 @@ const Index: NextPageWithLayout = () => {
         '". Route back: "' +
         JSON.stringify(routeBack),
     )
+    const add_volume_timer = () => {
+      if (microphone.context && microphone.analyser) {
+        modifyContextState(microphone.context, () => {
+          timerRef.current = setInterval(() => {
+            volumeCallback(microphone.analyser!)
+          }, 100)
+        })
+      }
+    }
+    const remove_volume_timer = () => {
+      if (microphone.context && microphone.analyser) {
+        //Microphone is active
+        modifyContextState(microphone.context, () => {
+          clearInterval(timerRef.current!)
+        })
+      }
+    }
+    const fetch_data = (prev_page_data: any) => {
+      fetch('/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          collection: document.cookie.match(
+            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+          )![1],
+          document: 'page_' + prev_page_data.start_timestamp,
+          data: prev_page_data,
+        }),
+      }).then((res: Response) => {
+        console.log(
+          'Weblogger: HTTP Response: Code ' +
+            res.status +
+            '. ' +
+            JSON.stringify(res.json()),
+        )
+        db?.microphones.clear()
+      })
+    }
     const save_page_data = (
       param: boolean,
       prev_page_data: any,
@@ -144,28 +195,22 @@ const Index: NextPageWithLayout = () => {
     ) => {
       if (param) {
         if (Object.keys(prev_page_data).length != 0) {
-          fetch('/api/data', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              collection: document.cookie.match(
-                /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-              )![1],
-              document: 'page_' + prev_page_data.start_timestamp,
-              data: prev_page_data,
-            }),
-          }).then((res: Response) => {
-            console.log(
-              'Weblogger: HTTP Response: Code ' +
-                res.status +
-                '. ' +
-                JSON.stringify(res.json()),
-            )
-          })
+          if (microphone.context && microphone.analyser) {
+            db?.microphones.toArray().then((array) => {
+              if (array.length != 0) {
+                prev_page_data = {
+                  ...prev_page_data,
+                  volume_levels: array.map((a) => {
+                    return { ...a }
+                  }),
+                }
+              }
+              fetch_data(prev_page_data)
+            })
+          } else fetch_data(prev_page_data)
         }
         if (recalibrate) {
+          remove_volume_timer()
           router.push('/calibration-legacy')
         }
       }
@@ -201,12 +246,14 @@ const Index: NextPageWithLayout = () => {
             router.push('/calibration-legacy')
           },
         })
-      } else
+      } else {
+        add_volume_timer()
         setBookLocationCallback({
           callback: (param: boolean, data: any) => {
             save_page_data(param, data, false)
           },
         })
+      }
     }
     //User has returned from a page
     if (
@@ -230,6 +277,7 @@ const Index: NextPageWithLayout = () => {
         })
       } else {
         //We have come back from the calibration page
+        add_volume_timer()
         setBookLocationCallback({
           callback: () => {
             if (eyeTracker.page_calibration) {
@@ -268,35 +316,13 @@ const Index: NextPageWithLayout = () => {
         prevTitle.current != focusedBookTab?.title &&
         !focusedBookTab?.title
       ) {
-        console.log('Weblogger: User has started reading')
+        console.log('Weblogger: User has finished reading')
+        remove_volume_timer()
         route_to_report_or_calibration(true, false, 'end')
       }
       prevTitle.current = focusedBookTab?.title
     }
   }, [focusedBookTab?.title])
-
-  /* useEffect(() => {
-    if (
-      eyeTracker.page_calibration == prevEyeTracker.current.page_calibration &&
-      eyeTracker.state == 'active' &&
-      eyeTracker.page_calibration
-    ) {
-      console.log('Weblogger: Index page calibration is active')
-      if (
-        focusedBookTab &&
-        keyDown &&
-        ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Space'].includes(
-          keyDown.key!,
-        ) &&
-        Math.abs(keyDown.time! - focusedBookTab?.timeline[0]?.timestamp!) < 1000
-      ) {
-        console.log(
-          'Weblogger: Index page calibration routing to calibration page',
-        )
-        router.push('/calibration-legacy')
-      }
-    }
-  }, [focusedBookTab?.timeline]) */
 
   useEffect(() => {
     console.log('Weblogger: Title changed...')
@@ -308,74 +334,6 @@ const Index: NextPageWithLayout = () => {
         JSON.stringify(bookLocationCallback),
     )
   }, [bookLocationCallback])
-
-  /* useEffect(() => {
-    console.log(
-      'Weblogger: Index EyeTracker state: "' +
-        JSON.stringify(eyeTracker) +
-        '". Previous eyetracker state: "' +
-        JSON.stringify(prevEyeTracker.current) +
-        '". Route history: "' +
-        JSON.stringify(routeHistory) +
-        '". Previous title state: "' +
-        prevTitle.current +
-        '". Document title: "' +
-        focusedTab?.title +
-        '"' +
-        ' . Key Code: ' +
-        keyDown,
-    )
-    console.log('Weblogger: Executing eyeTracker useEffect')
-    // We have returned from the calibration page (we don't want to calibrate again)
-    if (
-      !routeHistory.includes('/calibration-legacy') &&
-      !routeHistory.includes('/self-report')
-    ) {
-      if (
-        focusedBookTab?.title != prevTitle.current ||
-        eyeTracker.state != prevEyeTracker.current.state
-      ) {
-        console.log('Weblogger: Index eyetracker or title has changed')
-        if (eyeTracker.state == 'active') {
-          //Trigger calibration only if the user is reading
-          if (focusedBookTab) router.push('/calibration-legacy')
-        }
-      }
-      //Timeline is the only one that can be triggering the change (We have changed page)
-      else {
-        console.log('Weblogger: Index page calibration or keyDown has changed')
-        if (
-          eyeTracker.page_calibration ==
-            prevEyeTracker.current.page_calibration &&
-          eyeTracker.state == 'active' &&
-          eyeTracker.page_calibration
-        ) {
-          console.log('Weblogger: Index page calibration is active')
-          if (
-            focusedBookTab &&
-            keyDown &&
-            [
-              'ArrowLeft',
-              'ArrowUp',
-              'ArrowRight',
-              'ArrowDown',
-              'Space',
-            ].includes(keyDown.key!) &&
-            Math.abs(keyDown.time! - focusedBookTab?.timeline[0]?.timestamp!) <
-              1000
-          )
-            router.push('/calibration-legacy')
-        }
-      }
-      prevTitle.current = focusedBookTab?.title
-      prevEyeTracker.current = eyeTracker
-    } else setRouteHistory([])
-  }, [
-    eyeTracker,
-    focusedBookTab?.title,
-    routeHistory,
-    focusedBookTab?.timeline,
-  ]) */
 
   useEffect(() => {
     if ('launchQueue' in window && 'LaunchParams' in window) {

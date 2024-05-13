@@ -18,7 +18,6 @@ import { db } from '../db'
 import { BookTab, useReaderSnapshot } from '../models'
 import useWindowDimensions from '../hooks/useWindowDimensions'
 import { useRouteBack } from '../hooks/useRouteBack'
-import { useBookLocationCallback } from '../hooks/useLocation'
 import { useEyeTracker } from '../hooks/useEyeTracker'
 
 const CalibrationLegacy: NextPageWithLayout = () => {
