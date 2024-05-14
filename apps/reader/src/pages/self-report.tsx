@@ -43,11 +43,12 @@ function onResponseCallback(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        collection: document.cookie.match(
-          /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-        )![1],
-        document: 'self-report-' + response_item.timestamp,
+        collection: 'self_report_information',
+        document: 'self_report_' + response_item.timestamp,
         data: {
+          session_id: document.cookie.match(
+            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+          )![1],
           timestamp_formatted: new Date(response_item.timestamp).toLocaleString(
             'es-ES',
             timeConfiguration,

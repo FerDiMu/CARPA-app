@@ -150,11 +150,14 @@ const Index: NextPageWithLayout = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              collection: document.cookie.match(
-                /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-              )![1],
+              collection: 'page_information',
               document: 'page_' + prev_page_data.start_timestamp,
-              data: prev_page_data,
+              data: {
+                session_id: document.cookie.match(
+                  /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+                )![1],
+                ...prev_page_data,
+              },
             }),
           }).then((res: Response) => {
             console.log(
@@ -567,10 +570,10 @@ const Library: React.FC = () => {
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify({
-                        collection: document.cookie.match(
+                        collection: 'activity_information',
+                        document: document.cookie.match(
                           /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
                         )![1],
-                        document: 'activity_information',
                         data: {
                           start_timestamp_formatted: new Date(
                             date,
@@ -586,6 +589,9 @@ const Library: React.FC = () => {
                           book_setings:
                             books_info.length == 0 ? [] : books_info,
                           participant_id: result ? result.participant_id : -1,
+                          session_id: document.cookie.match(
+                            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+                          )![1],
                         },
                       }),
                     }).then((res: Response) => {
@@ -621,10 +627,10 @@ const Library: React.FC = () => {
                     'Content-Type': 'application/json',
                   },
                   body: JSON.stringify({
-                    collection: document.cookie.match(
+                    collection: 'activity_information',
+                    document: document.cookie.match(
                       /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
                     )![1],
-                    document: 'activity_information',
                     data: {
                       end_timestamp_formatted: new Date(date).toLocaleString(
                         'es-ES',

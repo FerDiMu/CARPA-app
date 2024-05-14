@@ -67,12 +67,8 @@ const CalibrationLegacy: NextPageWithLayout = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          collection:
-            typeof document !== 'undefined' &&
-            document.cookie.match(
-              /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-            )![1],
-          document: 'accuracy-' + accuracy_item.timestamp,
+          collection: 'accuracy_information',
+          document: 'accuracy_' + accuracy_item.timestamp,
           data: {
             session_id:
               typeof document !== 'undefined' &&

@@ -226,11 +226,14 @@ function ReaderGroup({ index }: ReaderGroupProps) {
                           'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                          collection: document.cookie.match(
-                            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-                          )![1],
+                          collection: 'page_information',
                           document: 'page_' + start_date.timestamp,
-                          data: prev_page_data,
+                          data: {
+                            session_id: document.cookie.match(
+                              /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+                            )![1],
+                            ...prev_page_data,
+                          },
                         }),
                       }).then((res: Response) => {
                         console.log(
