@@ -1,7 +1,9 @@
 import { Pane, PaneView, PaneViewProps } from '../base'
 import { useTranslation } from '@flow/reader/hooks'
-import { Checkbox, Select } from '../Form'
+import { Checkbox, Select, TextField, TextFieldProps } from '../Form'
 import { RegressionType, useEyeTracker } from '@flow/reader/hooks/useEyeTracker'
+import { useRef } from 'react'
+import { MdAdd, MdRemove } from 'react-icons/md'
 
 export const EyeTrackerView: React.FC<PaneViewProps> = (props) => {
   const t = useTranslation('eyetracker')
@@ -46,17 +48,36 @@ export const EyeTrackerView: React.FC<PaneViewProps> = (props) => {
             console.log('Weblogger: Eyetracker state: ' + eyeTracker.state)
           }}
         />
+      </Pane>
+      <Pane
+        headline={t('calibration_params')}
+        className="space-y-3 px-5 pt-2 pb-4"
+      >
         {eyeTracker.state == 'active' && (
-          <Checkbox
-            name={t('page_calibration')}
-            defaultChecked={eyeTracker.page_calibration}
-            onClick={(e) => {
-              setEyeTracker({
-                ...eyeTracker,
-                page_calibration: e.currentTarget.checked,
-              })
-            }}
-          />
+          <>
+            <Checkbox
+              name={t('page_calibration')}
+              defaultChecked={eyeTracker.page_calibration}
+              onClick={(e) => {
+                setEyeTracker({
+                  ...eyeTracker,
+                  page_calibration: e.currentTarget.checked,
+                })
+              }}
+            />
+            <NumberField
+              name={t('calibration-points-per-line')}
+              min={1}
+              max={5}
+              defaultValue={eyeTracker.calibration_points_per_line}
+              onChange={(v) => {
+                setEyeTracker({
+                  ...eyeTracker,
+                  calibration_points_per_line: v!,
+                })
+              }}
+            />
+          </>
         )}
       </Pane>
       <Pane
@@ -130,5 +151,51 @@ export const EyeTrackerView: React.FC<PaneViewProps> = (props) => {
         />
       </Pane>
     </PaneView>
+  )
+}
+
+interface NumberFieldProps extends Omit<TextFieldProps<'input'>, 'onChange'> {
+  onChange: (v?: number) => void
+}
+const NumberField: React.FC<NumberFieldProps> = ({ onChange, ...props }) => {
+  const ref = useRef<HTMLInputElement>(null)
+  const t = useTranslation('action')
+
+  return (
+    <TextField
+      as="input"
+      type="number"
+      placeholder="default"
+      actions={[
+        {
+          title: t('step_down'),
+          Icon: MdRemove,
+          onClick: () => {
+            if (!ref.current) return
+            ref.current.stepDown()
+            onChange(Number(ref.current.value))
+          },
+        },
+        {
+          title: t('step_up'),
+          Icon: MdAdd,
+          onClick: () => {
+            if (!ref.current) return
+            ref.current.stepUp()
+            onChange(Number(ref.current.value))
+          },
+        },
+      ]}
+      mRef={ref}
+      // lazy render
+      onBlur={(e) => {
+        onChange(Number(e.target.value))
+      }}
+      onClear={() => {
+        if (ref.current) ref.current.value = ''
+        onChange(undefined)
+      }}
+      {...props}
+    />
   )
 }

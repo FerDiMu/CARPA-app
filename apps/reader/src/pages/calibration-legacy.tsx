@@ -166,34 +166,59 @@ const CalibrationLegacy: NextPageWithLayout = () => {
         console.log(
           'Weblogger: Mean word height: ' + JSON.stringify(mean_height),
         )
+        let video_width_px = 320
         var video_height_px = 240
+
         for (let top_coordinate in y_frequency) {
           console.log('Weblogger: Top coordinate: ' + top_coordinate)
           if (Number(top_coordinate) <= video_height_px + mean_height) {
-            for (let k = 1; k <= 4; k++) {
+            for (let k = 1; k <= eyeTracker.calibration_points_per_line; k++) {
+              console.log('Weblogger: Point at video height')
+              let left_position =
+                video_width_px +
+                k *
+                  ((window.innerWidth - video_width_px) /
+                    (eyeTracker.calibration_points_per_line + 1))
+              console.log('Weblogger: Video width ' + video_width_px)
+              console.log('Weblogger: Page width ' + window.innerWidth)
+              console.log(
+                'Weblogger: Distance factor ' +
+                  (window.innerWidth - video_width_px) /
+                    (eyeTracker.calibration_points_per_line + 1),
+              )
+              console.log('Weblogger: Left position ' + left_position)
               points_aux.push({
                 top: top_coordinate + 'px',
-                left: k != 4 ? 25 * k + 'vw' : '94vw',
+                left: left_position + 'px',
                 width: mean_height + 'px',
                 height: mean_height + 'px',
               })
             }
           } else {
-            for (let k = 1; k <= 5; k++) {
+            for (let k = 1; k <= eyeTracker.calibration_points_per_line; k++) {
+              console.log('Weblogger: Point beyond video height')
+              let left_position =
+                k *
+                (window.innerWidth /
+                  (eyeTracker.calibration_points_per_line + 1))
+              console.log('Weblogger: Video width ' + video_width_px)
+              console.log('Weblogger: Page width ' + window.innerWidth)
+              console.log(
+                'Weblogger: Distance factor ' +
+                  window.innerWidth /
+                    (eyeTracker.calibration_points_per_line + 1),
+              )
+              console.log('Weblogger: Left position ' + left_position)
               points_aux.push({
                 top: top_coordinate + 'px',
-                left:
-                  k != 1 && k != 5
-                    ? 25 * (k - 1) + 'vw'
-                    : k != 1
-                    ? '94vw'
-                    : '2vw',
+                left: left_position + 'px',
                 width: mean_height + 'px',
                 height: mean_height + 'px',
               })
             }
           }
         }
+        console.log(points_aux)
         setLoading(false)
         setPoints({
           calibration: points_aux,
