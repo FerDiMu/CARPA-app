@@ -17,10 +17,15 @@ export interface ReaderInformation{
 export interface AccuracyRecord{
   timestamp: number,
   accuracy: number,
-  accuracy_predictions: {
-    x: number[],
-    y: number[],
-  },
+  predictions: {
+    timestamp: number,
+    x_screen_prediction: number,
+    y_screen_prediction: number,
+  }[],
+  true_value: {
+    x: number,
+    y: number,
+  }
   window_dimensions: {
     width: number,
     height: number,
@@ -89,6 +94,10 @@ export class DB extends Dexie {
 
   constructor(name: string) {
     super(name)
+
+    this.version(11).stores({
+      accuracies: 'timestamp, accuracy, predictions, true_value, window_dimensions'
+    })
 
     this.version(10).stores({
       readers: 'timestamp, participant_id'

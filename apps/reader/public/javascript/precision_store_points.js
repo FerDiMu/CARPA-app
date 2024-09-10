@@ -3,7 +3,7 @@
  * points are stored
  */
 function store_points_variable(){
-  console.log("WEBLOGGER: STARTED SSTORING POINTS")
+  console.log("WEBLOGGER: STARTED STORING POINTS")
   webgazer.params.storingPoints = true;
 }
 
@@ -12,6 +12,6 @@ function store_points_variable(){
  * stored any more
  */
 function stop_storing_points_variable(){
-  console.log("WEBLOGGER: STOPPED SSTORING POINTS")
+  console.log("WEBLOGGER: STOPPED STORING POINTS")
   webgazer.params.storingPoints = false;
 }

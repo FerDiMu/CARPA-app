@@ -151,12 +151,27 @@ li {
   position:fixed;
 }
 
+.Precision{
+  /* width: 20px;
+  height: 20px;
+  -webkit-border-radius: 25px;  
+  -moz-border-radius: 25px;
+  border-radius: 25px;
+  background-color: red;
+  border-color: black;
+  border-style: solid; 
+  opacity: 0.333;*/
+  opacity: 1;
+  position: fixed;
+}
+
 #PtPrecision{
+  /*
   top: 50vh;
   left: 50vw;
   width: 70px;
   height: 70px;
-  /* -webkit-border-radius: 30px;  
+   -webkit-border-radius: 30px;  
   -moz-border-radius: 30px;
   border-radius: 30px;
   background-color: red;
@@ -280,14 +295,33 @@ li {
 }
 
 @keyframes scaling {
-  0%   {transform: scale(0.3);}
+  0%   {transform: scale(0.5);}
   25%  {transform: scale(1.0);}
-  50%  {transform: scale(0.3);}
+  50%  {transform: scale(0.5);}
   100% {transform: scale(1.0);}
 }
 
-.animation{
+/* @keyframes glowing {
+  0%   {background-color: #bcbe00; box-shadow: 0 0 3px #bcbe00;}
+  25%  {background-color: #fcff00; box-shadow: 0 0 40px #fcff00;}
+  50%  {background-color: #bcbe00; box-shadow: 0 0 3px #bcbe00;}
+  100% {background-color: #fcff00; box-shadow: 0 0 40px #fcff00;}
+} */
+
+@keyframes glowing {
+  0%   {background-color: #bcbe00; box-shadow: 0 0 3px #bcbe00;}
+  25%  {background-color: #fcff00; box-shadow: 0 0 40px #fcff00;}
+  50%  {background-color: #bcbe00; box-shadow: 0 0 3px #bcbe00;}
+  100% {background-color: #fcff00; box-shadow: 0 0 40px #fcff00;}
+}
+
+.scaling{
   animation: scaling 3s;
+}
+
+.glowing{
+  animation: scaling 3s, glowing 3s;
+  border-radius: 50%;
 }
 
 input[type=checkbox]:checked {

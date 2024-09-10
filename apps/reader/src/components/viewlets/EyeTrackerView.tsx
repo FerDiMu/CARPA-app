@@ -1,7 +1,11 @@
 import { Pane, PaneView, PaneViewProps } from '../base'
 import { useTranslation } from '@flow/reader/hooks'
 import { Checkbox, Select, TextField, TextFieldProps } from '../Form'
-import { RegressionType, useEyeTracker } from '@flow/reader/hooks/useEyeTracker'
+import {
+  RegressionType,
+  ValidationType,
+  useEyeTracker,
+} from '@flow/reader/hooks/useEyeTracker'
 import { useRef } from 'react'
 import { MdAdd, MdRemove } from 'react-icons/md'
 
@@ -53,32 +57,42 @@ export const EyeTrackerView: React.FC<PaneViewProps> = (props) => {
         headline={t('calibration_params')}
         className="space-y-3 px-5 pt-2 pb-4"
       >
-        {eyeTracker.state == 'active' && (
-          <>
-            <Checkbox
-              name={t('page_calibration')}
-              defaultChecked={eyeTracker.page_calibration}
-              onClick={(e) => {
-                setEyeTracker({
-                  ...eyeTracker,
-                  page_calibration: e.currentTarget.checked,
-                })
-              }}
-            />
-            <NumberField
-              name={t('calibration-points-per-line')}
-              min={1}
-              max={5}
-              defaultValue={eyeTracker.calibration_points_per_line}
-              onChange={(v) => {
-                setEyeTracker({
-                  ...eyeTracker,
-                  calibration_points_per_line: v!,
-                })
-              }}
-            />
-          </>
-        )}
+        <Checkbox
+          name={t('page_calibration')}
+          defaultChecked={eyeTracker.page_calibration}
+          onClick={(e) => {
+            setEyeTracker({
+              ...eyeTracker,
+              page_calibration: e.currentTarget.checked,
+            })
+          }}
+        />
+        <NumberField
+          name={t('calibration-points-per-line')}
+          min={1}
+          max={5}
+          defaultValue={eyeTracker.calibration_points_per_line}
+          onChange={(v) => {
+            setEyeTracker({
+              ...eyeTracker,
+              calibration_points_per_line: v!,
+            })
+          }}
+        />
+        <Select
+          name={t('validation_procedure')}
+          value={eyeTracker.validation_type}
+          onChange={(e) => {
+            setEyeTracker({
+              ...eyeTracker,
+              validation_type: e.target.value as ValidationType,
+            })
+          }}
+        >
+          <option value={'central'}>{t('central')}</option>
+          <option value={'peripheral'}>{t('peripheral')}</option>
+          <option value={'both'}>{t('both')}</option>
+        </Select>
       </Pane>
       <Pane
         headline={t('specific_params')}

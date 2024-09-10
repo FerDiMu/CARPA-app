@@ -8,6 +8,7 @@ import {
   ShowCalibrationPoint,
   calPointClick,
   calcAccuracy,
+  initializePrecisionPoints,
 } from '../javascript/calibration'
 import { NextPageWithLayout } from './_app'
 import { VideoModal } from '../components/VideoModal'
@@ -34,51 +35,97 @@ const CalibrationLegacy: NextPageWithLayout = () => {
   const [showPrecisionModal, setShowPrecisionModal] = useState(false)
   const canvas_ref = useRef<HTMLCanvasElement>(null)
   const [points, setPoints] = useState<{
+    precision: { top: string; left: string; width: string; height: string }[]
     calibration: { top: string; left: string; width: string; height: string }[]
     start: { top: string; left: string; width: string; height: string }
   }>()
+  const calcPeripheralPrecision = (
+    precision_positions: Set<String>,
+    calibration_positions: {
+      top: number
+      left: number
+    }[],
+  ) => {
+    var lowest_top = Math.min.apply(
+      null,
+      calibration_positions.map((x) => x['top']),
+    )
+    var lowest_top_left = Math.min.apply(
+      null,
+      calibration_positions.map((x) => x['left']).filter((x) => lowest_top),
+    )
+    var lowest_top_right = Math.max.apply(
+      null,
+      calibration_positions.map((x) => x['left']).filter((x) => lowest_top),
+    )
+    var highest_top = Math.max.apply(
+      null,
+      calibration_positions.map((x) => x['top']),
+    )
+    var highest_top_left = Math.min.apply(
+      null,
+      calibration_positions.map((x) => x['left']).filter((x) => highest_top),
+    )
+    var highest_top_right = Math.max.apply(
+      null,
+      calibration_positions.map((x) => x['left']).filter((x) => highest_top),
+    )
+    precision_positions.add(lowest_top + 'px,' + lowest_top_left + 'px')
+    precision_positions.add(lowest_top + 'px,' + lowest_top_right + 'px')
+    precision_positions.add(highest_top + 'px,' + highest_top_left + 'px')
+    precision_positions.add(highest_top + 'px,' + highest_top_right + 'px')
+    console.log(precision_positions)
+  }
   const calibration_callback = () => {
     setShowPrecisionModal(true)
   }
-  const accuracy_callback = (accuracy_num: number, past_50: any) => {
-    console.log('Weblogger: Accuracy: ' + JSON.stringify(past_50))
-    const accuracy_item = {
-      accuracy: accuracy_num,
-      timestamp: Date.now(),
-      accuracy_predictions: {
-        x: past_50[0],
-        y: past_50[1],
-      },
-      window_dimensions: {
-        width: width,
-        height: height,
-      },
-    }
+  const accuracy_callback = (
+    accuracyInfo: {
+      timestamp: number
+      accuracy: number
+      true_value: { x: number; y: number }
+      predictions: {
+        timestamp: number
+        x_screen_prediction: number
+        y_screen_prediction: number
+      }[]
+    }[],
+  ) => {
     if (
       ((typeof document !== 'undefined' &&
         document.cookie.match(
           /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
         )) || [, null])[1] != null
     ) {
-      db?.accuracies.add(accuracy_item)
+      accuracyInfo.forEach((element) => {
+        db!.accuracies.add({
+          ...element,
+          window_dimensions: {
+            width: width,
+            height: height,
+          },
+        })
+      })
+      var date = Date.now()
       fetch('/api/data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          collection: 'accuracy_information',
-          document: 'accuracy_' + accuracy_item.timestamp,
+          collection: 'validation_information',
+          document: 'validation_' + date,
           data: {
             session_id:
               typeof document !== 'undefined' &&
               document.cookie.match(
                 /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
               )![1],
-            timestamp_formatted: new Date(
-              accuracy_item.timestamp,
-            ).toLocaleString('es-ES', timeConfiguration),
-            ...accuracy_item,
+            timestamp_formatted: new Date(date).toLocaleString(
+              'es-ES',
+              timeConfiguration,
+            ),
+            validations: accuracyInfo,
           },
         }),
       }).then((res: Response) => {
@@ -120,6 +167,7 @@ const CalibrationLegacy: NextPageWithLayout = () => {
       })
     })
   }
+
   useEffect(() => {
     currentAction = router.query.action
     console.log('Weblogger: Current action: ' + currentAction)
@@ -127,11 +175,9 @@ const CalibrationLegacy: NextPageWithLayout = () => {
     if (focusedBookTab) {
       console.log('Weblogger: Can access booktab')
       db?.words.toArray().then((words) => {
-        var points_aux: {
-          top: string
-          left: string
-          width: string
-          height: string
+        var calibration_positions: {
+          top: number
+          left: number
         }[] = []
         console.log('Weblogger: Number of words: ' + words.length)
         let y = words.map(({ y }) => y)
@@ -187,11 +233,9 @@ const CalibrationLegacy: NextPageWithLayout = () => {
                     (eyeTracker.calibration_points_per_line + 1),
               )
               console.log('Weblogger: Left position ' + left_position)
-              points_aux.push({
-                top: top_coordinate + 'px',
-                left: left_position + 'px',
-                width: mean_height + 'px',
-                height: mean_height + 'px',
+              calibration_positions.push({
+                top: Number(top_coordinate),
+                left: left_position,
               })
             }
           } else {
@@ -209,24 +253,46 @@ const CalibrationLegacy: NextPageWithLayout = () => {
                     (eyeTracker.calibration_points_per_line + 1),
               )
               console.log('Weblogger: Left position ' + left_position)
-              points_aux.push({
-                top: top_coordinate + 'px',
-                left: left_position + 'px',
-                width: mean_height + 'px',
-                height: mean_height + 'px',
+              calibration_positions.push({
+                top: Number(top_coordinate),
+                left: left_position,
               })
             }
           }
         }
-        console.log(points_aux)
+        var points_aux_precision = new Set<string>()
+        // Set precision points
+        if (
+          eyeTracker.validation_type == 'central' ||
+          eyeTracker.validation_type == 'both'
+        ) {
+          points_aux_precision.add('50vh,50vw')
+        }
+        if (
+          eyeTracker.validation_type == 'peripheral' ||
+          eyeTracker.validation_type == 'both'
+        ) {
+          calcPeripheralPrecision(points_aux_precision, calibration_positions)
+        }
         setLoading(false)
         setPoints({
-          calibration: points_aux,
+          precision: [...points_aux_precision].map((item: any, index: any) => ({
+            top: item.split(',')[0],
+            left: item.split(',')[1],
+            width: mean_height + 'px',
+            height: mean_height + 'px',
+          })),
+          calibration: calibration_positions.map((item: any, index: any) => ({
+            top: item['top'] + 'px',
+            left: item['left'] + 'px',
+            width: mean_height + 'px',
+            height: mean_height + 'px',
+          })),
           start: {
             top: min_top + 'px',
             left: min_left - mean_height + 'px',
-            height: mean_height + 'px',
             width: mean_height + 'px',
+            height: mean_height + 'px',
           },
         })
         console.log('Weblogger: Points: ' + JSON.stringify(points))
@@ -347,37 +413,41 @@ const CalibrationLegacy: NextPageWithLayout = () => {
           ></img>
           <div className="calibrationDiv">
             <input></input>
-            <input
-              type="image"
-              src="/icons/digglet-with-hole.png"
-              style={{
-                width: points!['start'].width,
-                height: points!['start'].height,
-              }}
-              id="PtPrecision"
-              className="Calibration"
-            />
             {
               //new Array(13).fill(0).map((item, index) => (
-              points!['calibration'].map((item, index) => (
+              points!['precision'].map((item, index) => (
                 <input
                   type="image"
-                  src="/icons/digglet-hole.png"
-                  className="Calibration"
+                  src="/icons/digglet-with-hole.png"
+                  className="Precision"
                   style={{
-                    cursor: 'url(/icons/hammer-resized.png), auto',
                     top: item['top'],
                     left: item['left'],
                     width: item['width'],
                     height: item['height'],
                   }}
-                  id={'Pt' + (index + 1)}
-                  onClick={(e) => {
-                    calPointClick(e.currentTarget, calibration_callback)
-                  }}
+                  id={'PrecisionPt' + (index + 1)}
                 />
               ))
             }
+            {points!['calibration'].map((item, index) => (
+              <input
+                type="image"
+                src="/icons/digglet-hole.png"
+                className="Calibration"
+                style={{
+                  cursor: 'url(/icons/hammer-resized.png), auto',
+                  top: item['top'],
+                  left: item['left'],
+                  width: item['width'],
+                  height: item['height'],
+                }}
+                id={'CalibrationPt' + (index + 1)}
+                onClick={(e) => {
+                  calPointClick(e.currentTarget, calibration_callback)
+                }}
+              />
+            ))}
           </div>
         </>
       )}
@@ -402,6 +472,7 @@ const CalibrationLegacy: NextPageWithLayout = () => {
           mediaURL="../videos/Precision.mp4"
           onclick={() => {
             setShowPrecisionModal(false)
+            initializePrecisionPoints()
             calcAccuracy(accuracy_callback)
           }}
           script={[['play/', '0:12']]}

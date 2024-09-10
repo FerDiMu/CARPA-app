@@ -8,6 +8,9 @@ function ClearCanvas(){
   document.querySelectorAll('.Calibration').forEach((i) => {
     i.style.setProperty('display', 'none');
   });
+  document.querySelectorAll('.Precision').forEach((i) => {
+    i.style.setProperty('display', 'none');
+  });
   var canvas = document.getElementById("plotting_canvas");
   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
@@ -30,53 +33,121 @@ function helpModalShow() {
 }
 
 function calcAccuracy(accuracy_callback) {
-    // show modal
-    // notification for the measurement process
-    const webgazer = require("./webgazer");
-    
-    // makes the variables true for 5 seconds & plots the points
+  // show modal
+  // notification for the measurement process
+  const webgazer = require("./webgazer");
+  
+  // makes the variables true for 5 seconds & plots the points
 
-    const {store_points_variable, stop_storing_points_variable} = require('./precision_store_points');
-    const calculatePrecision = require('./precision_calculation');
+  const calculatePrecision = require('./precision_calculation');
 
-    store_points_variable(); // start storing the prediction points
+  if(window.pointPrecision < window.precision_ids.length){
+    selectNewPrecisionPoint();
 
-    sleep(5000).then(() => {
-            stop_storing_points_variable(); // stop storing the prediction points
-            var past50 = webgazer.getStoredPoints(); // retrieve the stored points
-            var precision_measurement = calculatePrecision(past50);
-            //var accuracyLabel = '<a className="navbar-brand h1 mb-0">Accuracy | ' +precision_measurement+ '%</a>';
-            //document.getElementById("Accuracy").innerHTML = accuracyLabel; // Show the accuracy in the nav bar.
-            swal({
-                title: "Su medida de precisión es del " + precision_measurement + "%",
-                allowOutsideClick: false,
-                buttons: {
-                    cancel: "Recalibrar",
-                    confirm: true,
-                }
-            }).then(isConfirm => {
-                    if (isConfirm){
-                      ClearCanvas();
-                      var marker =  document.getElementById("startTextMarker")
-                      marker.style.removeProperty('display');
-                      marker.className += " animation";
-                      document.getElementById('webgazerVideoContainer').style.removeProperty('left')
-                      sleep(3000).then(() => {
-                        //clear the calibration & hide the last middle button
-                        document.getElementById("startTextMarker").style.setProperty('display', 'none');
-                        accuracy_callback(precision_measurement, past50)
-                        console.log("Weblogger: Callback function executed")
-                      })
-                    } else {
-                        //use restart function to restart the calibration
-                        // document.getElementById("Accuracy").innerHTML = '<a className="navbar-brand h1 mb-0">Not yet Calibrated</a>';
-                        webgazer.clearData();
-                        ClearCalibration();
-                        ClearCanvas();
-                        ShowCalibrationPoint();
-                    }
-            });
+    webgazer.setGazeListener(function(data, elapsedTime) {
+      const date = Date.now()
+      window.predictions.push({
+        timestamp: date,
+        x_screen_prediction: data['x'],
+        y_screen_prediction: data['y'],
+      })
     });
+
+    const timeBeforeSleep = Date.now()
+
+    console.log("Weblogger: Parámetro storingPoints antes del timer: " + webgazer.params.storingPoints)
+
+    sleep(3000).then(() => {
+      
+      webgazer.clearGazeListener()
+
+      var valid_predictions = window.predictions.filter((pred) => (pred["timestamp"] - timeBeforeSleep) > 1000)
+      window.past50 = []
+      window.past50[0] = valid_predictions.map((prediction)=>prediction["x_screen_prediction"])
+      window.past50[1] = valid_predictions.map((prediction)=>prediction["y_screen_prediction"])
+
+      console.log(past50)
+
+      let element = document.getElementById(window.selected_id)
+      element.className = element.className.replace(" glowing", "");
+      let elementPosition = element.getBoundingClientRect();
+      let elementTop = (elementPosition.top + elementPosition.bottom)/2
+      let elementLeft = (elementPosition.left + elementPosition.right)/2
+      var accuracy_measurement = calculatePrecision(elementLeft, elementTop, window.past50);
+      console.log("Weblogger: Element position - " + elementLeft + "px, " + elementTop + ". Accuracy: " + accuracy_measurement)
+      //var accuracyLabel = '<a className="navbar-brand h1 mb-0">Accuracy | ' +precision_measurement+ '%</a>';
+      //document.getElementById("Accuracy").innerHTML = accuracyLabel; // Show the accuracy in the nav bar.
+      var currentdate = +new Date()
+      window.precisionInfo.push({
+        timestamp: currentdate,
+        accuracy: accuracy_measurement,
+        true_value: {x: elementLeft, y: elementTop},
+        predictions: valid_predictions,
+      })
+      window.predictions = []
+      window.pointPrecision++
+      calcAccuracy(accuracy_callback)
+    });
+  }
+  else{
+    document.getElementById(window.precision_ids[window.pointPrecision - 1]).style.setProperty('display', 'none');
+    var mean_precision = window.precisionInfo.map((x) => x['accuracy']).reduce((a, b) => a + b) / window.precisionInfo.length;
+    swal({
+      title: "Su medida de precisión es del " + mean_precision + "%",
+      allowOutsideClick: false,
+      buttons: {
+          cancel: "Recalibrar",
+          confirm: true,
+      }
+    }).then(isConfirm => {
+      if (isConfirm){
+        ClearCanvas();
+        var marker =  document.getElementById("startTextMarker")
+        marker.style.removeProperty('display');
+        marker.className += " scaling";
+        document.getElementById('webgazerVideoContainer').style.removeProperty('left')
+        sleep(2000).then(() => {
+          //clear the calibration & hide the last middle button
+          document.getElementById("startTextMarker").style.setProperty('display', 'none');
+          accuracy_callback(window.precisionInfo)
+          console.log("Weblogger: Callback function executed")
+        })
+      } else {
+          //use restart function to restart the calibration
+          // document.getElementById("Accuracy").innerHTML = '<a className="navbar-brand h1 mb-0">Not yet Calibrated</a>';
+          webgazer.clearData();
+          ClearCalibration();
+          ClearCanvas();
+          ShowCalibrationPoint();
+      }
+  });
+  }
+}
+
+function initializePrecisionPoints(){
+  window.precision_ids = []
+  document.querySelectorAll('.Precision').forEach((i) => {
+    window.precision_ids.push(i.id)
+  });
+  window.pointPrecision = 0;
+  window.precisionInfo = [];
+  window.past50 = []
+  window.predictions = [];
+  console.log("Weblogger: Initialized precision points")
+  console.log(precision_ids)
+}
+
+function selectNewPrecisionPoint(){
+  var element;
+  if(window.pointPrecision != 0){
+    element = document.getElementById(window.precision_ids[window.pointPrecision - 1]);
+    element.style.setProperty('display', 'none');
+  }
+  window.selected_id = window.precision_ids[window.pointPrecision];
+  console.log("Weblogger: Selected point for validation: " + window.selected_id);
+  var element = document.getElementById(window.selected_id);
+  element.style.removeProperty('display');
+  element.className += " glowing";
 }
 
 function calPointClick(node, calibration_callback) {
@@ -97,7 +168,7 @@ function calPointClick(node, calibration_callback) {
         window.pointCalibrate++;
         if(window.point_ids.length!=0){
           //window.selected_id = Math.floor(Math.random() * (window.point_ids.length));
-          window.selected_id = "Pt" + (window.pointCalibrate + 1);
+          window.selected_id = "CalibrationPt" + (window.pointCalibrate + 1);
           console.log(window.point_ids)
           console.log("Weblogger: Selected initial point: " + window.selected_id);
           var element = document.getElementById(window.selected_id);
@@ -124,13 +195,7 @@ function calPointClick(node, calibration_callback) {
     if (window.pointCalibrate >= window.number_of_calibration_points){ // last point is calibrated
       // grab every element in Calibration class and hide them except the middle point.
       document.querySelectorAll('.Calibration').forEach((i) => {
-        if(i.id != "PtPrecision"){
-          i.style.setProperty('display', 'none');
-        }
-        else{
-          //i.style.setProperty('background-color', 'red');
-          i.style.removeProperty('display');
-        }
+        i.style.setProperty('display', 'none');
       });
       // clears the canvas
       var canvas = document.getElementById("plotting_canvas");
@@ -166,7 +231,7 @@ function docLoad() {
 function ShowCalibrationPoint() {
   window.point_ids = []
   document.querySelectorAll('.Calibration').forEach((i) => {
-    if(i.id != "PtPrecision"){
+    if(i.id.indexOf("CalibrationPt") != -1){
       //i.style.removeProperty('display');
       window.point_ids.push(i.id)
     }
@@ -175,7 +240,7 @@ function ShowCalibrationPoint() {
   // initially hides the middle button
   //document.getElementById('Pt6').style.setProperty('display', 'none');
   //window.selected_id = Math.floor(Math.random() * (window.point_ids.length));
-  window.selected_id = "Pt" + (window.pointCalibrate + 1);
+  window.selected_id = "CalibrationPt" + (window.pointCalibrate + 1);
   console.log("Weblogger: Selected initial point: " + window.selected_id);
   //console.log("Weblogger: Selected initial point: " + window.point_ids[window.selected_id])
   //var element = document.getElementById(window.point_ids[window.selected_id]);
@@ -195,21 +260,16 @@ function ClearCalibration(){
   console.log("Weblogger: Running calibration.js from src folder")
 
   document.querySelectorAll('.Calibration').forEach((i) => {
-    //i.style.setProperty('background-color', 'red');
-    /* if(i.id != "PtPrecision"){
-      i.setAttribute('disabled', 'disabled');
-    }
-    else{
-      i.style.setProperty('display', 'none');
-    } */
     i.style.setProperty('display', 'none');
     i.setAttribute('disabled', 'disabled');
     i.style.setProperty('opacity', '1');
-    //i.removeAttribute('disabled');
   });
-
+  document.querySelectorAll('.Precision').forEach((i) => {
+    i.style.setProperty('display', 'none');
+  });
   window.calibrationPoints = {};
   window.pointCalibrate = 0;
+  window.pointPrecision = 0;
 }
 
 // sleep function because java doesn't have one, sourced from http://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
@@ -217,4 +277,4 @@ function sleep (time) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
-module.exports = {helpModalShow, ShowCalibrationPoint, calPointClick, ClearCalibration, ClearCanvas, calcAccuracy}
+module.exports = {helpModalShow, ShowCalibrationPoint, calPointClick, ClearCalibration, ClearCanvas, calcAccuracy, initializePrecisionPoints}
