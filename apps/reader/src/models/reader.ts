@@ -447,27 +447,6 @@ export class BookTab extends BaseTab {
                 }
               }
               db?.eyegazes.clear()
-              const accuracies = await db?.accuracies.filter((obj)=>{return obj.timestamp <= this.timeline[0]?.timestamp!}).toArray()
-              if(accuracies && accuracies.length != 0){
-                console.log(
-                  'Weblogger: Accuracies: ' + accuracies.length,
-                )
-                const proximal_accuracy = accuracies.reduce(
-                  (prev, current) => {
-                    return prev.timestamp > current.timestamp ? prev : current
-                  }
-                )
-                this.prev_page_data = {
-                  ...this.prev_page_data,
-                  accuracy_info: {
-                    timestamp_formatted: new Date(proximal_accuracy.timestamp).toLocaleString(
-                      'es-ES',
-                      timeConfiguration,
-                    ),
-                    ...proximal_accuracy
-                  }
-                }
-              }
             }
           }
         }

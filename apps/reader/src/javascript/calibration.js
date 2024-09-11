@@ -45,12 +45,14 @@ function calcAccuracy(accuracy_callback) {
     selectNewPrecisionPoint();
 
     webgazer.setGazeListener(function(data, elapsedTime) {
-      const date = Date.now()
-      window.predictions.push({
-        timestamp: date,
-        x_screen_prediction: data['x'],
-        y_screen_prediction: data['y'],
-      })
+      if(data != null){
+        const date = Date.now()
+        window.predictions.push({
+          timestamp: date,
+          x_screen_prediction: data['x'],
+          y_screen_prediction: data['y'],
+        })
+      }
     });
 
     const timeBeforeSleep = Date.now()

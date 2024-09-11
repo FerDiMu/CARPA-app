@@ -97,34 +97,47 @@ const CalibrationLegacy: NextPageWithLayout = () => {
           /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
         )) || [, null])[1] != null
     ) {
-      accuracyInfo.forEach((element) => {
-        db!.accuracies.add({
-          ...element,
-          window_dimensions: {
-            width: width,
-            height: height,
-          },
-        })
-      })
       var date = Date.now()
+      db!.calibrations.add({
+        session_id:
+          typeof document !== 'undefined' &&
+          document.cookie.match(
+            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+          )![1],
+        timestamp: date,
+        timestamp_formatted: new Date(date).toLocaleString(
+          'es-ES',
+          timeConfiguration,
+        ),
+        window_dimensions: {
+          width: width,
+          height: height,
+        },
+        validations: accuracyInfo,
+      })
       fetch('/api/data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          collection: 'validation_information',
-          document: 'validation_' + date,
+          collection: 'calibration_information',
+          document: 'calibration_' + date,
           data: {
             session_id:
               typeof document !== 'undefined' &&
               document.cookie.match(
                 /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
               )![1],
+            timestamp: date,
             timestamp_formatted: new Date(date).toLocaleString(
               'es-ES',
               timeConfiguration,
             ),
+            window_dimensions: {
+              width: width,
+              height: height,
+            },
             validations: accuracyInfo,
           },
         }),
@@ -151,20 +164,22 @@ const CalibrationLegacy: NextPageWithLayout = () => {
     webgazer.setVideoViewerSize(160, 120)
     db?.eyegazes.clear()
     webgazer.setGazeListener(function (data: any, clock: any) {
-      const date = Date.now()
-      db?.eyegazes.add({
-        session_id: ((typeof document !== 'undefined' &&
-          document.cookie.match(
-            /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
-          )) || [, null])[1] as string | null,
-        timestamp: date,
-        timestamp_formatted: new Date(date).toLocaleString(
-          'es-ES',
-          timeConfiguration,
-        ),
-        x_screen_prediction: data['x'],
-        y_screen_prediction: data['y'],
-      })
+      if (data != null) {
+        const date = Date.now()
+        db?.eyegazes.add({
+          session_id: ((typeof document !== 'undefined' &&
+            document.cookie.match(
+              /^(?:.*;)?\s*readerID\s*=\s*([^;]+)(?:.*)?$/,
+            )) || [, null])[1] as string | null,
+          timestamp: date,
+          timestamp_formatted: new Date(date).toLocaleString(
+            'es-ES',
+            timeConfiguration,
+          ),
+          x_screen_prediction: data['x'],
+          y_screen_prediction: data['y'],
+        })
+      }
     })
   }
 
