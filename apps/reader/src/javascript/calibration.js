@@ -63,10 +63,9 @@ function calcAccuracy(accuracy_callback) {
       
       webgazer.clearGazeListener()
 
-      var valid_predictions = window.predictions.filter((pred) => (pred["timestamp"] - timeBeforeSleep) > 1000)
       window.past50 = []
-      window.past50[0] = valid_predictions.map((prediction)=>prediction["x_screen_prediction"])
-      window.past50[1] = valid_predictions.map((prediction)=>prediction["y_screen_prediction"])
+      window.past50[0] = window.predictions.map((prediction)=>prediction["x_screen_prediction"])
+      window.past50[1] = window.predictions.map((prediction)=>prediction["y_screen_prediction"])
 
       console.log(past50)
 
@@ -79,12 +78,13 @@ function calcAccuracy(accuracy_callback) {
       console.log("Weblogger: Element position - " + elementLeft + "px, " + elementTop + ". Accuracy: " + accuracy_measurement)
       //var accuracyLabel = '<a className="navbar-brand h1 mb-0">Accuracy | ' +precision_measurement+ '%</a>';
       //document.getElementById("Accuracy").innerHTML = accuracyLabel; // Show the accuracy in the nav bar.
-      var currentdate = +new Date()
+      var currentdate = Date.now()
       window.precisionInfo.push({
-        timestamp: currentdate,
+        start_timestamp: timeBeforeSleep,
         accuracy: accuracy_measurement,
         true_value: {x: elementLeft, y: elementTop},
-        predictions: valid_predictions,
+        predictions: window.predictions,
+        end_timestamp: currentdate,
       })
       window.predictions = []
       window.pointPrecision++

@@ -81,7 +81,8 @@ const CalibrationLegacy: NextPageWithLayout = () => {
   }
   const accuracy_callback = (
     accuracyInfo: {
-      timestamp: number
+      start_timestamp: number
+      end_timestamp: number
       accuracy: number
       true_value: { x: number; y: number }
       predictions: {
@@ -98,7 +99,7 @@ const CalibrationLegacy: NextPageWithLayout = () => {
         )) || [, null])[1] != null
     ) {
       var date = Date.now()
-      db!.calibrations.add({
+      db!.calibrationValidations.add({
         session_id:
           typeof document !== 'undefined' &&
           document.cookie.match(

@@ -14,7 +14,7 @@ export interface ReaderInformation{
   participant_id: number | undefined,
 }
 
-export interface CalibrationRecord{
+export interface CalibrationValidationRecord{
   session_id: string | false | undefined,
   timestamp: number,
   timestamp_formatted: string,
@@ -23,7 +23,8 @@ export interface CalibrationRecord{
     height: number,
   },
   validations: {
-    timestamp: number,
+    start_timestamp: number,
+    end_timestamp: number,
     accuracy: number,
     predictions: {
       timestamp: number,
@@ -107,7 +108,7 @@ export interface BookRecord {
 export class DB extends Dexie {
   // 'books' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
-  calibrations!: Table<CalibrationRecord>
+  calibrationValidations!: Table<CalibrationValidationRecord>
   readers!: Table<ReaderInformation>
   timelines!: Table<TimelineRecord>
   accuracies!: Table<AccuracyRecord>
@@ -119,6 +120,10 @@ export class DB extends Dexie {
 
   constructor(name: string) {
     super(name)
+
+    this.version(13).stores({
+      calibrationValidations: 'timestamp, session_id, window_dimensions, validations'
+    })
 
     this.version(12).stores({
       calibrations: 'timestamp, session_id, window_dimensions, validations'
